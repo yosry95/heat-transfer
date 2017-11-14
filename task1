@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <math.h>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+
+    const double pi = 3.1415926535897;
+    int n=21,m=21;
+    float dx=1.0/n,dy=1.0/m;
+    double T_y=300;
+    double beta= dx/dy;
+    double dummy1=pow(cos(pi/n)+cos(pi/m),2);
+    double omega= 4/(2+sqrt(4-dummy1));         //The optimal converging parameter
+    double T[n+2][m+2] = {{0}};
+    vector <double> x;
+    vector <double> y;
+
+    //setting Boundry condition
+
+    for(int i=1;i<=n+1;i+=1)
+    {
+        T[i][1] = 0;  //%T(x,0)=0
+        T[i][m + 1] = T_y; //T(x, b) = 300
+    }
+
+    for(int j=1;j<=m+1;j+=1)
+    {
+
+        T[1][j] = 0;  //%T(x,0)=0
+        T[n+1][j] = T_y; //T(x, b) = 300
+    }
+
+    int imax=1000; //maximum iteration
+    int k=1;
+    double Epsilon=1e-6; //tolerance
+    double TN[n+1][m+1];
+
+    //New iteration
+    for(int i=1;i<=n+1;i+=1)
+        for(int j=1;j<=m+1;j+=1)
+            TN[i][j] = T[i][j];
+
+    //setting error matrix
+    double error[n+1][m+1];
+    for(int i=1;i<=n+1;i+=1)
+        for(int j=1;j<=m+1;j+=1)
+            error[i][j] = TN[i][j] - T[i][j];
+
+
+
+    for(k=1;k<=imax;k+=1)
+    {
+        for(int i=2;i<=n;i+=1)
+        {
+            for(int j=2;j<=m;j+=1)
+            {
+                //Finite difference
+                TN[i][j]=(1-omega)*T[i][j]+omega*(TN[i+1][j]+TN[i-1][j]+pow(beta,2)*
+                  (T[i][j+1])+TN[i][j-1])/(2*(1+pow(beta,2)));
+                error[i][j]=fabs(TN[i][j]-T[i][j]);
+
+
+            }
+        }
+        //setting T to TN
+        for(int l=1;l<=n+1;l+=1)
+            for(int z=1;z<=m+1;z+=1)
+                T[l][z] = TN[l][z];
+
+        //checking for the maximum error
+        double errormax=-1;
+        for(int l=1;l<=n+1;l+=1)
+            for(int z=1;z<=m+1;z+=1)
+                if(errormax<error[l][z])
+                    errormax=error[l][z];
+
+        //condition if it reach the maximum error
+        if(errormax<Epsilon)
+        {
+            printf("Converges after %i.\n",k);
+            return 0;
+        }
+    }
+
+    return 0;
+}

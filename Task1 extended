@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <math.h>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+int main()
+{
+    int n=41,m=41;
+    float dx=1.0/n,dy=1.0/m;
+    float arr[n+1];
+    float arr2[n+1];
+    float ans[n];
+    ifstream inFile;
+    inFile.open("mat.txt");
+    if (!inFile) {
+        printf("Unable to open file");
+        exit(1); // terminate with error
+    }
+    int i=0;
+    float sum=0;
+    while (inFile >> arr[i]>>arr2[i]) {
+        ans[i]=(arr2[i]-arr[i])/dx;
+        sum+=ans[i];
+    }
+    printf("The sum is: %f\n",sum);
+    inFile.close();
+
+    return 0;
+}
+
